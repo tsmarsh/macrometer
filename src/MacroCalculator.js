@@ -50,7 +50,7 @@ class Weight extends React.Component {
     render() {
         return (
             <InputGroup className="mb-3">
-                <InputGroup.Prepend>
+                <InputGroup.Prepend className="">
                     <InputGroup.Text>Weight</InputGroup.Text>
                 </InputGroup.Prepend>
 
