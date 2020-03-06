@@ -153,11 +153,11 @@ class MacroTable extends React.Component {
             <Table size={"sm"} striped bordered>
                 <thead>
                 <tr>
-                    <th className={"text-left"}>Deficit</th>
-                    <th className={"text-right"}>Daily Calorie</th>
-                    <th className={"text-right"}>Protein</th>
-                    <th className={"text-right"}>Fats</th>
-                    <th className={"text-right"}>Carbs</th>
+                    <th className={"text-left col-2"}>Deficit</th>
+                    <th className={"text-right"}>Daily kCal</th>
+                    <th className={"text-right"}>Protein (g)</th>
+                    <th className={"text-right"}>Fats (g)</th>
+                    <th className={"text-right"}>Carbs (g)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -179,11 +179,14 @@ class MacroCalculator extends React.Component {
             macros: []
         };
 
-        this.aggression = [
-            ["very aggressive", 0.3],
-            ["aggressive", 0.25],
-            ["mildly aggressive", 0.2]
-        ];
+        this.aggression = {
+            "very aggressive": 0.7,
+            "aggressive": 0.75,
+            "mildly aggressive": 0.8,
+            "refeed": 1.1
+        };
+
+        this.cdp = ["very aggressive", "aggressive", "mildly aggressive" ];
 
         this.onNameChange = this.onNameChange.bind(this);
         this.onWeightChange = this.onWeightChange.bind(this);
@@ -199,8 +202,8 @@ class MacroCalculator extends React.Component {
         return 370 + (21.6 * this.leanMass());
     }
 
-    dailyCalories(a) {
-        return this.maintainance() - (this.maintainance() * a)
+     dailyCalories(a) {
+        return this.maintainance() * a;
     }
 
     protein() {
@@ -218,13 +221,21 @@ class MacroCalculator extends React.Component {
     }
 
     calculateMacros() {
-        return this.aggression.map((a) => [
-            a[0],
-            parseInt(this.dailyCalories(a[1])),
+        return this.cdp.map((a) => [
+            a,
+            parseInt(this.dailyCalories(this.aggression[a])),
             parseInt(this.protein()),
-            parseInt(this.fat(a[1])),
-            parseInt(this.carbs(a[1]))
+            parseInt(this.fat(this.aggression[a])),
+            parseInt(this.carbs(this.aggression[a]))
         ])
+    }
+
+    calculateRefeed(){
+        return [["refeed",
+                parseInt(this.maintainance() * 1.1),
+                parseInt(this.leanMass() * 2.205),
+                parseInt(this.fat(this.aggression["refeed"])),
+                parseInt(this.carbs(this.aggression["refeed"]))]]
     }
 
     maintainance() {
@@ -258,6 +269,7 @@ class MacroCalculator extends React.Component {
                 </div>
                 <div>
                     <MacroTable macros={this.calculateMacros()}/>
+                    <MacroTable macros={this.calculateRefeed()}/>
                 </div>
             </div>
         )
