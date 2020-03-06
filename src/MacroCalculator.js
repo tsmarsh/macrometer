@@ -2,35 +2,6 @@ import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Table from 'react-bootstrap/Table';
 
-class Name extends React.Component {
-    constructor(props) {
-        super(props);
-        this.name = props.value;
-
-        this.updateName = this.updateName.bind(this);
-    }
-
-    updateName(e) {
-        this.name = e.target.value
-        this.props.onNameChange(this.name);
-    }
-
-    render() {
-        return (
-            <InputGroup className="mb-3">
-                <InputGroup.Prepend>
-                    <InputGroup.Text>Name</InputGroup.Text>
-                </InputGroup.Prepend>
-                <input onChange={this.updateName}
-                       id="name"
-                       className="form-control"
-                       type="text"
-                       value={this.name}/>
-            </InputGroup>
-        );
-    }
-}
-
 class Weight extends React.Component {
 
     lbsPerKilo = 2.205;
@@ -43,11 +14,11 @@ class Weight extends React.Component {
         this.weight = props.value;
 
         this.toggleMetric = this.toggleMetric.bind(this);
-        this.calculateWeight = this.calculateWeight.bind(this);
+        this.getMetricWeight = this.getMetricWeight.bind(this);
         this.updateWeight = this.updateWeight.bind(this);
     }
 
-    freedomToMetric(value){
+    freedomToMetric(value) {
         return value / this.lbsPerKilo;
     }
 
@@ -55,11 +26,11 @@ class Weight extends React.Component {
         return value * this.lbsPerKilo;
     }
 
-    calculateWeight(value) {
+    getMetricWeight() {
         if (!this.state.metric) {
-            return this.freedomToMetric(value)
+            return this.freedomToMetric(this.weight)
         }
-        return value;
+        return this.weight;
     }
 
     toggleMetric() {
@@ -71,8 +42,8 @@ class Weight extends React.Component {
     }
 
     updateWeight(e) {
-        this.weight = this.calculateWeight(parseFloat(e.target.value));
-        this.props.onWeightChange(this.weight);
+        this.weight = parseFloat(e.target.value);
+        this.props.onWeightChange(this.getMetricWeight());
     }
 
 
@@ -133,11 +104,11 @@ class Activity extends React.Component {
         this.activityLevel = this.props.value;
 
         this.activityLevels = [
-            ["sedentary", 1.2],
-            ["light", 1.3],
-            ["moderate", 1.4],
-            ["very active", 1.5],
-            ["extremely active", 1.6]];
+            ["sedentary (<5000 steps/day)", 1.2],
+            ["light (≈5,000 steps/day)", 1.3],
+            ["moderate (≈7,000 steps/day)", 1.4],
+            ["very active (≈10,000 steps/day)", 1.5],
+            ["extremely active (≈15,000+ steps/day)", 1.6]];
     }
 
     updateActivity(e) {
@@ -149,15 +120,18 @@ class Activity extends React.Component {
         let options = this.activityLevels.map((row) => <option key={row[1]} value={row[1]}>{row[0]}</option>)
 
         return (
-            <InputGroup className="mb-3">
-                <InputGroup.Prepend>
-                    <InputGroup.Text>Activity</InputGroup.Text>
-                </InputGroup.Prepend>
-                <select className="custom-select" id="activity" onChange={this.updateActivity}
-                        defaultValue={this.activityLevel}>
-                    {options}
-                </select>
-            </InputGroup>
+            <div>
+                <InputGroup className="mb-3">
+                    <InputGroup.Prepend>
+                        <InputGroup.Text>Activity</InputGroup.Text>
+                    </InputGroup.Prepend>
+                    <select className="custom-select" id="activity" onChange={this.updateActivity}
+                            defaultValue={this.activityLevel}>
+                        {options}
+                    </select>
+                </InputGroup>
+                <p className="small">* All activity assumes 3 to 5 days of strength training</p>
+            </div>
         );
     }
 }
@@ -165,7 +139,7 @@ class Activity extends React.Component {
 class MacroTable extends React.Component {
 
     render() {
-        let i=100;
+        let i = 100;
         let rows = this.props.macros.map((a) => {
             const [head, ...tail] = a;
 
@@ -199,7 +173,6 @@ class MacroCalculator extends React.Component {
         super(props);
 
         this.state = {
-            name: props.name,
             bodyFat: parseFloat(props.fat),
             weight: parseFloat(props.weight),
             activity: parseFloat(props.activity),
@@ -279,7 +252,6 @@ class MacroCalculator extends React.Component {
         return (
             <div>
                 <div>
-                    <Name value={this.state.name} onNameChange={this.onNameChange}/>
                     <Weight value={this.state.weight} onWeightChange={this.onWeightChange}/>
                     <Fat value={this.state.bodyFat} onFatChange={this.onFatChange}/>
                     <Activity value={this.state.activity} onActivityChange={this.onActivityChange}/>
