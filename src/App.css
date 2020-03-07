@@ -43,3 +43,25 @@
 .input-group .input-group-text {
   width: 100%;
 }
+
+.macro-calculator {
+  background-color: #9fcdff;
+  padding: 1em;
+  border-radius: 0.25em;
+  background-image: image("shark-bungee.png");
+}
+
+h1 {
+  color: #383838;
+}
+
+.input-group-text {
+  color: #383838;
+}
+
+table {
+  background-color: whitesmoke;
+  border-collapse: collapse;
+  border-radius: 0.25em;
+  overflow: hidden;
+}

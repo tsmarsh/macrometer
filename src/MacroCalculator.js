@@ -54,10 +54,10 @@ class Weight extends React.Component {
                     <InputGroup.Text>Weight</InputGroup.Text>
                 </InputGroup.Prepend>
 
-                <input onChange={this.updateWeight} id="weight" type="number" step="0.1" min="0" value={this.weight}/>
+                <input className={"col-2"} onChange={this.updateWeight} id="weight" type="number" step="0.1" min="0" value={this.weight}/>
 
                 <InputGroup.Append>
-                    <select onChange={this.toggleMetric} className="custom-select" id="freedom" defaultValue={"kg"}>
+                    <select className={"col-1"} onChange={this.toggleMetric} className="custom-select" id="freedom" defaultValue={"kg"}>
                         <option value="lbs">lbs</option>
                         <option value="kg">kg</option>
                     </select>
@@ -89,7 +89,7 @@ class Fat extends React.Component {
                     <InputGroup.Text>Body Fat%</InputGroup.Text>
                 </InputGroup.Prepend>
 
-                <input onChange={this.updateFat} id="body_fat" type="number" step="0.1" max="100" min="0"
+                <input className={"col-2"} onChange={this.updateFat} id="body_fat" type="number" step="0.1" max="100" min="0"
                        value={this.fat}/>
             </InputGroup>
         );
@@ -117,7 +117,7 @@ class Activity extends React.Component {
 
     render() {
 
-        let options = this.activityLevels.map((row) => <option key={row[1]} value={row[1]}>{row[0]}</option>)
+        let options = this.activityLevels.map((row) => <option className="text-capitalize" key={row[1]} value={row[1]}>{row[0]}</option>)
 
         return (
             <div>
@@ -125,12 +125,12 @@ class Activity extends React.Component {
                     <InputGroup.Prepend>
                         <InputGroup.Text>Activity</InputGroup.Text>
                     </InputGroup.Prepend>
-                    <select className="custom-select" id="activity" onChange={this.updateActivity}
+                    <select className="custom-select col-4" id="activity" onChange={this.updateActivity}
                             defaultValue={this.activityLevel}>
                         {options}
                     </select>
                 </InputGroup>
-                <p className="small">* All activity assumes 3 to 5 days of strength training</p>
+                <p className="small text-right">* All activity assumes 3 to 5 days of strength training</p>
             </div>
         );
     }
@@ -144,20 +144,20 @@ class MacroTable extends React.Component {
             const [head, ...tail] = a;
 
             return (<tr>
-                <td className={"text-left"}>{head}</td>
+                <td className={"text-left text-capitalize"}>{head}</td>
                 {tail.map((v) => <td className={"text-right"} key={"macro-" + i++}>{v}</td>)}
             </tr>);
         });
 
         return (
             <Table size={"sm"} striped bordered>
-                <thead>
+                <thead variant="dark">
                 <tr>
-                    <th className={"text-left col-2"}>Deficit</th>
-                    <th className={"text-right"}>Daily kCal</th>
-                    <th className={"text-right"}>Protein (g)</th>
-                    <th className={"text-right"}>Fats (g)</th>
-                    <th className={"text-right"}>Carbs (g)</th>
+                    <th className={"text-left col-2 text-capitalize"}>Deficit</th>
+                    <th className={"text-right text-capitalize"}>Daily kCal</th>
+                    <th className={"text-right text-capitalize"}>Protein (g)</th>
+                    <th className={"text-right text-capitalize"}>Fats (g)</th>
+                    <th className={"text-right text-capitalize"}>Carbs (g)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -186,7 +186,7 @@ class MacroCalculator extends React.Component {
             "refeed": 1.1
         };
 
-        this.cdp = ["very aggressive", "aggressive", "mildly aggressive" ];
+        this.cdp = ["very aggressive", "aggressive", "mildly aggressive"];
 
         this.onNameChange = this.onNameChange.bind(this);
         this.onWeightChange = this.onWeightChange.bind(this);
@@ -202,7 +202,7 @@ class MacroCalculator extends React.Component {
         return 370 + (21.6 * this.leanMass());
     }
 
-     dailyCalories(a) {
+    dailyCalories(a) {
         return this.maintainance() * a;
     }
 
@@ -230,12 +230,12 @@ class MacroCalculator extends React.Component {
         ])
     }
 
-    calculateRefeed(){
+    calculateRefeed() {
         return [["refeed",
-                parseInt(this.maintainance() * 1.1),
-                parseInt(this.leanMass() * 2.205),
-                parseInt(this.fat(this.aggression["refeed"])),
-                parseInt(this.carbs(this.aggression["refeed"]))]]
+            parseInt(this.maintainance() * 1.1),
+            parseInt(this.leanMass() * 2.205),
+            parseInt(this.fat(this.aggression["refeed"])),
+            parseInt(this.carbs(this.aggression["refeed"]))]]
     }
 
     maintainance() {
@@ -261,7 +261,7 @@ class MacroCalculator extends React.Component {
 
     render() {
         return (
-            <div>
+            <div className="macro-calculator">
                 <div>
                     <Weight value={this.state.weight} onWeightChange={this.onWeightChange}/>
                     <Fat value={this.state.bodyFat} onFatChange={this.onFatChange}/>
