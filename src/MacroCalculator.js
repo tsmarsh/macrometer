@@ -1,279 +1,191 @@
 import React from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Table from 'react-bootstrap/Table';
+import {useState} from "react";
 
-class Weight extends React.Component {
+function Weight(props) {
 
-    lbsPerKilo = 2.205;
+    const lbsPerKilo = 2.20;
 
-    constructor(props) {
-        super(props);
+    const [metric, setMetric] = useState(true);
 
-        this.state = {metric: true};
+    const freedomToMetric = (value) => value / lbsPerKilo;
 
-        this.weight = props.value;
+    const metricToFreedom = (value) => value * lbsPerKilo;
 
-        this.toggleMetric = this.toggleMetric.bind(this);
-        this.getMetricWeight = this.getMetricWeight.bind(this);
-        this.updateWeight = this.updateWeight.bind(this);
-    }
 
-    freedomToMetric(value) {
-        return value / this.lbsPerKilo;
-    }
-
-    metricToFreedom(value) {
-        return value * this.lbsPerKilo;
-    }
-
-    getMetricWeight() {
-        if (!this.state.metric) {
-            return this.freedomToMetric(this.weight)
+    const getMetricWeight = (weight) => {
+        if (!metric) {
+            return freedomToMetric(weight)
         }
-        return this.weight;
-    }
+        return weight;
+    };
 
-    toggleMetric() {
-        this.setState({metric: !this.state.metric});
+    const displayValue = (value) => metric ? value : metricToFreedom(value).toFixed(1);
 
-        let value = parseFloat(document.getElementById("weight").value);
+    const toggleMetric = () => {
+        setMetric(!metric);
+        props.onWeightChange(props.value);
+    };
 
-        this.weight = this.state.metric ? this.metricToFreedom(value).toFixed(1) : this.freedomToMetric(value).toFixed(1);
-    }
+    const updateWeight = (e) => {
+        let weight = parseFloat(e.target.value);
+        props.onWeightChange(getMetricWeight(weight));
+    };
 
-    updateWeight(e) {
-        this.weight = parseFloat(e.target.value);
-        this.props.onWeightChange(this.getMetricWeight());
-    }
+    return (
+        <InputGroup className="mb-3">
+            <InputGroup.Prepend className="">
+                <InputGroup.Text>Weight</InputGroup.Text>
+            </InputGroup.Prepend>
 
+            <input className={"col-2"} onChange={updateWeight} id="weight" type="number" step="0.1" min="0"
+                   value={displayValue(props.value)}/>
 
-    render() {
-        return (
-            <InputGroup className="mb-3">
-                <InputGroup.Prepend className="">
-                    <InputGroup.Text>Weight</InputGroup.Text>
-                </InputGroup.Prepend>
-
-                <input className={"col-2"} onChange={this.updateWeight} id="weight" type="number" step="0.1" min="0" value={this.weight}/>
-
-                <InputGroup.Append>
-                    <select className={"col-1"} onChange={this.toggleMetric} className="custom-select" id="freedom" defaultValue={"kg"}>
-                        <option value="lbs">lbs</option>
-                        <option value="kg">kg</option>
-                    </select>
-                </InputGroup.Append>
-            </InputGroup>
-        );
-    }
+            <InputGroup.Append>
+                <select className={"custom-select"} onChange={toggleMetric} id="freedom"
+                        defaultValue={"kg"}>
+                    <option value="lbs">lbs</option>
+                    <option value="kg">kg</option>
+                </select>
+            </InputGroup.Append>
+        </InputGroup>
+    );
 }
 
-class Fat extends React.Component {
-    constructor(props) {
-        super(props);
+function Fat(props) {
+    const updateFat = (e) => props.onFatChange(parseFloat(e.target.value));
 
-        let fat = parseFloat(this.props.value);
-        this.fat = fat;
-        this.updateFat = this.updateFat.bind(this);
-    }
+    return (
+        <InputGroup className="mb-3">
+            <InputGroup.Prepend>
+                <InputGroup.Text>Body Fat%</InputGroup.Text>
+            </InputGroup.Prepend>
 
-    updateFat(e) {
-        let fat = parseFloat(e.target.value);
-        this.fat = fat;
-        this.props.onFatChange(this.fat);
-    }
+            <input className={"col-2"} onChange={updateFat} id="body_fat" type="number" step="0.1" max="100"
+                   min="0"
+                   value={props.value}/>
+        </InputGroup>
+    );
+}
 
-    render() {
-        return (
+function Activity(props) {
+    const activityLevels = [
+        ["sedentary (<5000 steps/day)", 1.2],
+        ["light (≈5,000 steps/day)", 1.3],
+        ["moderate (≈7,000 steps/day)", 1.4],
+        ["very active (≈10,000 steps/day)", 1.5],
+        ["extremely active (≈15,000+ steps/day)", 1.6]];
+
+    const updateActivity = (e) => props.onActivityChange(e.target.value);
+
+    let options = activityLevels.map((row) => <option className="text-capitalize" key={row[1]}
+                                                      value={row[1]}>{row[0]}</option>);
+
+    return (
+        <div>
             <InputGroup className="mb-3">
                 <InputGroup.Prepend>
-                    <InputGroup.Text>Body Fat%</InputGroup.Text>
+                    <InputGroup.Text>Activity</InputGroup.Text>
                 </InputGroup.Prepend>
-
-                <input className={"col-2"} onChange={this.updateFat} id="body_fat" type="number" step="0.1" max="100" min="0"
-                       value={this.fat}/>
+                <select className="custom-select col-4" id="activity" onChange={updateActivity}
+                        defaultValue={props.value}>
+                    {options}
+                </select>
             </InputGroup>
-        );
-    }
+            <p className="small text-right">* All activity assumes 3 to 5 days of strength training</p>
+        </div>
+    );
+
 }
 
-class Activity extends React.Component {
-    constructor(props) {
-        super(props);
-        this.updateActivity = this.updateActivity.bind(this);
-
-        this.activityLevel = this.props.value;
-
-        this.activityLevels = [
-            ["sedentary (<5000 steps/day)", 1.2],
-            ["light (≈5,000 steps/day)", 1.3],
-            ["moderate (≈7,000 steps/day)", 1.4],
-            ["very active (≈10,000 steps/day)", 1.5],
-            ["extremely active (≈15,000+ steps/day)", 1.6]];
-    }
-
-    updateActivity(e) {
-        this.props.onActivityChange(e.target.value);
-    }
-
-    render() {
-
-        let options = this.activityLevels.map((row) => <option className="text-capitalize" key={row[1]} value={row[1]}>{row[0]}</option>)
+function MacroTable(props) {
+    let i = 100;
+    let rows = props.macros.map((a) => {
+        const [head, ...tail] = a;
 
         return (
-            <div>
-                <InputGroup className="mb-3">
-                    <InputGroup.Prepend>
-                        <InputGroup.Text>Activity</InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <select className="custom-select col-4" id="activity" onChange={this.updateActivity}
-                            defaultValue={this.activityLevel}>
-                        {options}
-                    </select>
-                </InputGroup>
-                <p className="small text-right">* All activity assumes 3 to 5 days of strength training</p>
-            </div>
-        );
-    }
-}
-
-class MacroTable extends React.Component {
-
-    render() {
-        let i = 100;
-        let rows = this.props.macros.map((a) => {
-            const [head, ...tail] = a;
-
-            return (<tr>
+            <tr key={"macro-row-" + a}>
                 <td className={"text-left text-capitalize"}>{head}</td>
-                {tail.map((v) => <td className={"text-right"} key={"macro-" + i++}>{v}</td>)}
+                    {tail.map((v) => <td className={"text-right"} key={"macro-" + i++}>{v}</td>)}
             </tr>);
-        });
+    });
 
-        return (
-            <Table size={"sm"} striped bordered>
-                <thead variant="dark">
-                <tr>
-                    <th className={"text-left col-2 text-capitalize"}>Deficit</th>
-                    <th className={"text-right text-capitalize"}>Daily kCal</th>
-                    <th className={"text-right text-capitalize"}>Protein (g)</th>
-                    <th className={"text-right text-capitalize"}>Fats (g)</th>
-                    <th className={"text-right text-capitalize"}>Carbs (g)</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows}
-                </tbody>
-            </Table>
-        );
-    }
+    return (
+        <Table size={"sm"} striped bordered>
+            <thead variant="dark">
+            <tr>
+                <th className={"text-left col-2"}>Deficit</th>
+                <th className={"text-right"}>Daily kCal</th>
+                <th className={"text-right"}>Protein (g)</th>
+                <th className={"text-right"}>Fats (g)</th>
+                <th className={"text-right"}>Carbs (g)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {rows}
+            </tbody>
+        </Table>
+    );
 }
 
-class MacroCalculator extends React.Component {
-    constructor(props) {
-        super(props);
 
-        this.state = {
-            bodyFat: parseFloat(props.fat),
-            weight: parseFloat(props.weight),
-            activity: parseFloat(props.activity),
-            macros: []
-        };
+function MacroCalculator(props) {
+    const aggression = {
+        "very aggressive": 0.7,
+        "aggressive": 0.75,
+        "mildly aggressive": 0.8,
+        "refeed": 1.1
+    };
 
-        this.aggression = {
-            "very aggressive": 0.7,
-            "aggressive": 0.75,
-            "mildly aggressive": 0.8,
-            "refeed": 1.1
-        };
+    const cdp = ["very aggressive", "aggressive", "mildly aggressive"];
 
-        this.cdp = ["very aggressive", "aggressive", "mildly aggressive"];
+    const leanMass = () => props.weight * (100 - props.fat) / 100;
 
-        this.onNameChange = this.onNameChange.bind(this);
-        this.onWeightChange = this.onWeightChange.bind(this);
-        this.onFatChange = this.onFatChange.bind(this);
-        this.onActivityChange = this.onActivityChange.bind(this);
-    }
+    const bmr = () => 370 + (21.6 * leanMass());
 
-    leanMass() {
-        return (this.state.weight * (100 - this.state.bodyFat)) / 100
-    }
+    const dailyCalories = (a) => maintainance() * a;
 
-    bmr() {
-        return 370 + (21.6 * this.leanMass());
-    }
+    const protein = () => leanMass() * 2.205 * 1.2;
 
-    dailyCalories(a) {
-        return this.maintainance() * a;
-    }
+    const fat = (a) => (dailyCalories(a) * 0.25) / 9;
 
-    protein() {
-        return this.leanMass() * 2.205 * 1.2;
-    }
+    const carbs = (a) => {
+        let protCals = protein() * 4;
+        let fatCals = fat(a) * 9;
+        return (dailyCalories(a) - (protCals + fatCals)) / 4;
+    };
 
-    fat(a) {
-        return (this.dailyCalories(a) * 0.25) / 9;
-    }
+    const calculateMacros = () => cdp.map((a) => [
+        a,
+        parseInt(dailyCalories(aggression[a])),
+        parseInt(protein()),
+        parseInt(fat(aggression[a])),
+        parseInt(carbs(aggression[a]))
+    ]);
 
-    carbs(a) {
-        let protCals = this.protein() * 4;
-        let fatCals = this.fat(a) * 9;
-        return (this.dailyCalories(a) - (protCals + fatCals)) / 4;
-    }
-
-    calculateMacros() {
-        return this.cdp.map((a) => [
-            a,
-            parseInt(this.dailyCalories(this.aggression[a])),
-            parseInt(this.protein()),
-            parseInt(this.fat(this.aggression[a])),
-            parseInt(this.carbs(this.aggression[a]))
-        ])
-    }
-
-    calculateRefeed() {
-        return [["refeed",
-            parseInt(this.maintainance() * 1.1),
-            parseInt(this.leanMass() * 2.205),
-            parseInt(this.fat(this.aggression["refeed"])),
-            parseInt(this.carbs(this.aggression["refeed"]))]]
-    }
-
-    maintainance() {
-        return this.bmr() * this.state.activity;
-    }
-
-    onNameChange(name) {
-        this.setState({name: name});
-    }
-
-    onWeightChange(weight) {
-        this.setState({weight: weight});
-    }
-
-    onFatChange(bodyFat) {
-        this.setState({bodyFat: bodyFat});
-    }
-
-    onActivityChange(activityLevel) {
-        this.setState({activity: activityLevel});
-    }
+    const calculateRefeed = () => [["refeed",
+        parseInt(maintainance() * 1.1),
+        parseInt(leanMass() * 2.205),
+        parseInt(fat(aggression["refeed"])),
+        parseInt(carbs(aggression["refeed"]))]];
 
 
-    render() {
-        return (
-            <div className="macro-calculator">
-                <div>
-                    <Weight value={this.state.weight} onWeightChange={this.onWeightChange}/>
-                    <Fat value={this.state.bodyFat} onFatChange={this.onFatChange}/>
-                    <Activity value={this.state.activity} onActivityChange={this.onActivityChange}/>
-                </div>
-                <div>
-                    <MacroTable macros={this.calculateMacros()}/>
-                    <MacroTable macros={this.calculateRefeed()}/>
-                </div>
+    const maintainance = () => bmr() * props.activity;
+
+    return (
+        <div className="macro-calculator">
+            <div>
+                <Weight value={props.weight} onWeightChange={props.setWeight}/>
+                <Fat value={props.fat} onFatChange={props.setFat}/>
+                <Activity value={props.activity} onActivityChange={props.setActivity}/>
             </div>
-        )
-    }
+            <div>
+                <MacroTable macros={calculateMacros()}/>
+                <MacroTable macros={calculateRefeed()}/>
+            </div>
+        </div>
+    )
 }
 
 export default MacroCalculator;
